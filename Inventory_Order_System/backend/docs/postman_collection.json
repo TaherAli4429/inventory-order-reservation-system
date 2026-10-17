@@ -1,0 +1,226 @@
+{
+  "info": {
+    "name": "Real-Time Inventory & Order Reservation API",
+    "description": "Postman API Collection covering all mandatory endpoints for the 4-Day Internship Assignment",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "GET /api/products (List / Search)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "x-user-role", "value": "admin" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/products?q=Logitech&status=active",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products"],
+              "query": [
+                { "key": "q", "value": "Logitech" },
+                { "key": "status", "value": "active" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /api/products (Create Product - Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "x-user-role", "value": "admin" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sku\": \"CALD-TS4-TB4\",\n  \"name\": \"CalDigit TS4 Thunderbolt 4 Dock\",\n  \"unit_price\": 399.95,\n  \"available_quantity\": 15,\n  \"low_stock_threshold\": 5\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/products",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products"]
+            }
+          }
+        },
+        {
+          "name": "PATCH /api/products/:id (Update Details / Deactivate - Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-role", "value": "admin" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"unit_price\": 389.99,\n  \"low_stock_threshold\": 4,\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/products/prod-001",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", "prod-001"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Stock Adjustments",
+      "item": [
+        {
+          "name": "POST /api/stock-adjustments (Record Reasoned Adjustment)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-role", "value": "admin" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"prod-001\",\n  \"quantity_change\": 10,\n  \"reason\": \"Shipment received from supplier via PO-8891\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/stock-adjustments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "stock-adjustments"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/stock-adjustments",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "x-user-role", "value": "staff" }],
+            "url": {
+              "raw": "{{base_url}}/api/stock-adjustments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "stock-adjustments"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "POST /api/orders (Create Order with Idempotency)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-role", "value": "staff" },
+              { "key": "idempotency-key", "value": "f47ac10b-58cc-4372-a567-0e02b2c3d479" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    { \"product_id\": \"prod-001\", \"quantity\": 2 },\n    { \"product_id\": \"prod-002\", \"quantity\": 1 }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/orders",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/orders/:id/confirm (Atomic Stock Reservation)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "x-user-role", "value": "staff" }],
+            "url": {
+              "raw": "{{base_url}}/api/orders/ORD-2026-8801/confirm",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "ORD-2026-8801", "confirm"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/orders/:id/cancel (Exact-Once Stock Release)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-role", "value": "staff" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Customer requested cancellation\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/orders/ORD-2026-8801/cancel",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "ORD-2026-8801", "cancel"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/orders (Paginated List)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "x-user-role", "value": "viewer" }],
+            "url": {
+              "raw": "{{base_url}}/api/orders?page=1&limit=10&status=all",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Audit Logs",
+      "item": [
+        {
+          "name": "GET /api/audit-logs (Admin Only)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "x-user-role", "value": "admin" }],
+            "url": {
+              "raw": "{{base_url}}/api/audit-logs",
+              "host": ["{{base_url}}"],
+              "path": ["api", "audit-logs"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "GET /api/notifications",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "x-user-role", "value": "staff" }],
+            "url": {
+              "raw": "{{base_url}}/api/notifications?unread=true",
+              "host": ["{{base_url}}"],
+              "path": ["api", "notifications"]
+            }
+          }
+        },
+        {
+          "name": "PATCH /api/notifications/:id/read",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "x-user-role", "value": "staff" }],
+            "url": {
+              "raw": "{{base_url}}/api/notifications/all/read",
+              "host": ["{{base_url}}"],
+              "path": ["api", "notifications", "all", "read"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:5000" },
+    { "key": "token", "value": "" }
+  ]
+}

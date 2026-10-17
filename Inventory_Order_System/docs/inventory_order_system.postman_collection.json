@@ -1,0 +1,284 @@
+{
+  "info": {
+    "name": "Real-Time Inventory & Order Reservation System API",
+    "_postman_id": "c1f77d85-1101-447d-895c-9c785f0ef322",
+    "description": "Comprehensive Postman collection for all REST endpoints across products, stock adjustments, orders, audit logs, and notifications.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "userEmail",
+      "value": "admin@enterprise.io",
+      "type": "string"
+    },
+    {
+      "key": "userRole",
+      "value": "admin",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET Backend Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "GET All Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-user-email", "value": "{{userEmail}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/products",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "products"]
+            }
+          }
+        },
+        {
+          "name": "POST Create Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-email", "value": "{{userEmail}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sku\": \"PROD-DEMO-001\",\n  \"name\": \"Demo Ergonomic Keyboard\",\n  \"unit_price\": 129.99,\n  \"available_quantity\": 15,\n  \"low_stock_threshold\": 5\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/products",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "products"]
+            }
+          }
+        },
+        {
+          "name": "PATCH Update / Deactivate Product",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-email", "value": "{{userEmail}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"unit_price\": 139.99,\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/products/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "products", ":id"],
+              "variable": [{ "key": "id", "value": "PRODUCT_ID_HERE" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Stock Adjustments",
+      "item": [
+        {
+          "name": "GET Stock Adjustments",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-user-email", "value": "{{userEmail}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/stock-adjustments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stock-adjustments"]
+            }
+          }
+        },
+        {
+          "name": "POST Reasoned Stock Adjustment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-email", "value": "{{userEmail}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"PRODUCT_ID_HERE\",\n  \"quantity_change\": 10,\n  \"reason\": \"Warehouse batch intake\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/stock-adjustments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stock-adjustments"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "GET Orders (Paginated)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-user-email", "value": "{{userEmail}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/orders?page=1&limit=10&status=all",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orders"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "status", "value": "all" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST Create Order (Idempotent)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "idempotency-key", "value": "idemp-test-key-1001" },
+              { "key": "x-user-email", "value": "{{userEmail}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"product_id\": \"PRODUCT_ID_HERE\",\n      \"quantity\": 2\n    }\n  ],\n  \"idempotency_key\": \"idemp-test-key-1001\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orders"]
+            }
+          }
+        },
+        {
+          "name": "POST Confirm Order (Atomic Stock Reservation)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-user-email", "value": "{{userEmail}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/orders/:id/confirm",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orders", ":id", "confirm"],
+              "variable": [{ "key": "id", "value": "ORD-2026-XXXX" }]
+            }
+          }
+        },
+        {
+          "name": "POST Cancel Order (Exact-Once Stock Release)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-user-email", "value": "{{userEmail}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Customer requested cancellation\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/orders/:id/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orders", ":id", "cancel"],
+              "variable": [{ "key": "id", "value": "ORD-2026-XXXX" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Audit Logs",
+      "item": [
+        {
+          "name": "GET Audit Logs (Admin Only)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-user-email", "value": "admin@enterprise.io" },
+              { "key": "x-user-role", "value": "admin" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/audit-logs",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "audit-logs"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "GET Notifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-user-email", "value": "{{userEmail}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications"]
+            }
+          }
+        },
+        {
+          "name": "PATCH Mark Notification Read",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "x-user-email", "value": "{{userEmail}}" },
+              { "key": "x-user-role", "value": "{{userRole}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/:id/read",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications", ":id", "read"],
+              "variable": [{ "key": "id", "value": "all" }]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
