@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export function getBackendBaseUrl(): string {
-  return process.env.BACKEND_URL || 'http://localhost:5000';
+  return process.env.BACKEND_URL || 'https://inventory-order-backend-4z8m.onrender.com';
 }
 
 export function extractForwardHeaders(request: NextRequest): Record<string, string> {
